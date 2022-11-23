@@ -21,6 +21,11 @@ app.use("/api", indexRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
+const eventsRoutes = require("./routes/events.routes");
+app.use("/api", eventsRoutes)
+
+//I'm unsure if we should use api in route here or if we should use /events
+
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 
