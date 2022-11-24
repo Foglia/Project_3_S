@@ -132,35 +132,28 @@ router.post("/login", (req, res, next) => {
 
 //Get User profile ......
 
-router.get("/user/:userId", async (req, res, next) => {
+router.get("profile/:userId", async (req, res, next) => {
   const {userId} = req.params
-  const currentUser = req.session.currentUser
+  const currentUser = req.isAuthenticated
   try {
-    const user = await User.findById(userId).populate("uploads") 
+    const user = await User.findById(userId)
   } catch (error) {
     console.log(error);
-        next(error)
+    next(error)
   }
 });
 
-router.post("/auth/:id", async (req, res, next) => {
+router.post("profile/userId", async (req, res, next) => {
   try {
-    const {firstName, lastName, bio} = req.body;
-    const id = req.params.id
-    const updatedUser = await User.findByIdAndUpdate(id, {firstName, lastName, bio});
-    res.redirect("/auth/login")
+    const {firstName, lastName, gender} = req.body;
+    const userId = req.params.id
+    const updatedUser = await User.findByIdAndUpdate(userId, {firstName, lastName, gender});
+    res.redirect("/api")
   } catch(error) {
     console.log(error);
-        next(error)
+    next(error)
   }
 });
-
-
-
-
-
-
-
 
 
 module.exports = router;
