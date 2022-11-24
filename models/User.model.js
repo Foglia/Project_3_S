@@ -36,13 +36,13 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
+  favorite: [{type: Schema.Types.ObjectId, ref:"Event"}]
   },
   {
     timestamps: true,
   }
 );
 
-favorit: [{type: Schema.Types.ObjectId, ref:"Event"}];
 // atendeeEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
 
 const User = model("User", userSchema);

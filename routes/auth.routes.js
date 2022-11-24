@@ -133,10 +133,10 @@ router.post("/login", (req, res, next) => {
 //Get User profile ......
 
 router.get("profile/:userId", async (req, res, next) => {
-  const {userId} = req.params
-  const currentUser = req.isAuthenticated
   try {
-    const user = await User.findById(userId)
+    const {userId} = req.params
+    const currentUser = req.isAuthenticated
+    res.status(200).json(currentUser);
   } catch (error) {
     console.log(error);
     next(error)
@@ -146,7 +146,7 @@ router.get("profile/:userId", async (req, res, next) => {
 router.post("profile/userId", async (req, res, next) => {
   try {
     const {firstName, lastName, gender} = req.body;
-    const userId = req.params.id
+    const userId = req.body.id
     const updatedUser = await User.findByIdAndUpdate(userId, {firstName, lastName, gender});
     res.redirect("/api")
   } catch(error) {
