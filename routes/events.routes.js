@@ -15,15 +15,15 @@ router.get("/events", (req, res, next) => {
 
 
 router.get("/events/:id", async (req, res, next) => {
-    const { title } = req.body
-
+        try {
+          const { id } = req.body;
+      
     // this route will get all the events by Name
 
-    try {
         let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
         let eventsAll = response.data
 
-        let eventDetail = eventsAll.filter((events) => events.title === title)
+        let eventDetail = eventsAll.findbyId((events) => events.id === Event)[`${id}`].Who
         console.log(eventDetail)
         res.status(200).json(eventDetail)
     } catch (error) {
