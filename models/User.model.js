@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
 
-// TODO: Please make sure you edit the User model to whatever makes sense in this case
 const userSchema = new Schema(
   {
     email: {
@@ -14,17 +13,37 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required."],
     },
-    name: {
+    imageUrl: {
       type: String,
-      required: [true, "Name is required."],
+      default: 'images/default-avatar.png'
+    },
+    firstName: {
+      type: String,
+      required: false,
+    },
+    lastName: {
+      type: String,
+      required: false,
+    },
+    gender: {
+      type: String,
+    },
+    location: {
+      country: String,
+      city: String,
+    },
+    aboutMe: {
+      type: String,
+      required: false,
     },
   },
   {
-    // this second object adds extra properties: `createdAt` and `updatedAt`
     timestamps: true,
   }
 );
 
-const User = model("User", userSchema);
+// savedEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
+// atendeeEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
 
+const User = model("User", userSchema);
 module.exports = User;
