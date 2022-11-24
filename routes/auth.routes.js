@@ -158,18 +158,6 @@ router.post("/auth/:id", async (req, res, next) => {
 
 
 
-<<<<<<< HEAD
-=======
-//Get User profile ......
-
-
-
-
-
-
-
-
->>>>>>> 8680f97f8c1a4716dc6ad6ab7512a7246ba7ab91
 
 
 
