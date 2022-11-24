@@ -130,30 +130,26 @@ router.post("/login", (req, res, next) => {
 
 // ..........................................................................//
 
+
+router.get("/logout", isAuthenticated, (req, res) => {
+  req.authToken.destroy((err) => {
+    if (err) {
+      res.status(401).json({ message: "User ? WHO?" });
+      return;
+    }
+
+    res.redirect("/");
+  });
+});
+
+
+
+
 //Get User profile ......
 
-router.get("/user/:userId", async (req, res, next) => {
-  const {userId} = req.params
-  const currentUser = req.session.currentUser
-  try {
-    const user = await User.findById(userId).populate("uploads") 
-  } catch (error) {
-    console.log(error);
-        next(error)
-  }
-});
 
-router.post("/auth/:id", async (req, res, next) => {
-  try {
-    const {firstName, lastName, bio} = req.body;
-    const id = req.params.id
-    const updatedUser = await User.findByIdAndUpdate(id, {firstName, lastName, bio});
-    res.redirect("/auth/login")
-  } catch(error) {
-    console.log(error);
-        next(error)
-  }
-});
+
+
 
 
 
