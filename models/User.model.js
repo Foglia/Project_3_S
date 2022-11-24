@@ -29,8 +29,7 @@ const userSchema = new Schema(
       type: String,
     },
     location: {
-      country: String,
-      city: String,
+      type: String,
     },
     aboutMe: {
       type: String,
@@ -44,6 +43,5 @@ const userSchema = new Schema(
 );
 
 // atendeeEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
-
 const User = model("User", userSchema);
 module.exports = User;

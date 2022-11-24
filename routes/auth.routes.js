@@ -87,6 +87,7 @@ router.post("/login", (req, res, next) => {
   // Check the users collection if a user with the same email exists
   User.findOne({ email })
     .then((foundUser) => {
+
       if (!foundUser) {
         // If the user is not found, send an error response
         res.status(401).json({ message: "User not found." });
@@ -131,29 +132,34 @@ router.post("/login", (req, res, next) => {
 // ..........................................................................//
 
 //Get User profile ......
-
-router.get("profile/:userId", async (req, res, next) => {
+router.get('/profile/:userId', isAuthenticated, async (req, res) => {
   try {
-    const {userId} = req.params
-    const currentUser = req.isAuthenticated
-    res.status(200).json(currentUser);
-  } catch (error) {
-    console.log(error);
-    next(error)
-  }
+  const { Id } = req.params
+  const currentUser = req.isAuthenticated = isAuthenticated
+  const editUser = await User.findById(Id);
+  res.json(editUser);
+} catch(error) {
+  console.log(error);
+}
 });
 
-router.post("profile/userId", async (req, res, next) => {
+// json, no more render - redirect 
+router.put("/profile/:userId", async (req, res, next) => {
   try {
-    const {firstName, lastName, gender} = req.body;
-    const userId = req.body.id
-    const updatedUser = await User.findByIdAndUpdate(userId, {firstName, lastName, gender});
-    res.redirect("/api")
+    const { Id } = req.params //try params
+    const currentUser = req.isAuthenticated = isAuthenticated
+    const {firstName, lastName, gender, location ,aboutMe} = req.body;
+    const updatedUser = await User.findByIdAndUpdate(Id, {firstName, lastName, gender, location ,aboutMe});
+    res.json(updatedUser) //
   } catch(error) {
     console.log(error);
     next(error)
   }
 });
 
-
 module.exports = router;
+
+
+//post sem id
+//put com id
+// isAuthenticated // TIROU
