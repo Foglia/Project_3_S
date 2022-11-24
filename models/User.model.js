@@ -42,7 +42,7 @@ const userSchema = new Schema(
   }
 );
 
-// savedEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
+favorit: [{type: Schema.Types.ObjectId, ref:"Event"}];
 // atendeeEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
 
 const User = model("User", userSchema);
