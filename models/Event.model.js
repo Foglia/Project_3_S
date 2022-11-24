@@ -2,51 +2,51 @@ const { Schema, model } = require("mongoose");
 
 const eventSchema = new Schema(
 {
- ImageUrl: {
+ imageUrl: {
     type: String,
     default: 'images/default-event.png',
     },
- Who: {
+ who: { //Who at the API
     type: String,
     },
- Name: {
+ title: { //Name at the API
     type: String,
     },
- Type: {
+ category: { //Theme at the API
     type: String,
     },
- Theme: {
+ type: { 
     type: String,
     },
- Permanent: {
+ permanent: {
     type: Boolean,
     },
     // See how to declare TIME - ex: "2022-11-30T16:16:19"
-StartDate: {
+ startDate: {
     type: Date,
     },
-EndDate: {
+ endDate: {
     type: Date,
     },
-Location: {
+ location: {
     type: String,    
     },
 // Where, Price, Info and Txt are inside html properties.   
 // Where - links, text and HTML
-Where: {
+ where: {
     type:String
     },
-Price: {
+ price: {
     type: String,
     },
 // Where - links, text and HTML
-Info: {
+ info: {
     type: String,
     },
-Text: {
+ description: { //Text at the API
     type: String
    },
-Url: {
+ link: { //Url at the API
     type: String,
   }
 },

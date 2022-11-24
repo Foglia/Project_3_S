@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const { response } = require("../app");
 const Event = require("../models/Event.model");
-const User = require("/models/User.model");
+/* const User = require("/models/User.model"); */
 
 router.get("/events", (req, res, next) => {
     axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
@@ -47,7 +47,7 @@ router.post("/events/favourite", async (req, res, next) => {
 
         console.log(favouriteEvent)
 
-        await User.findByIdAndUpdate(userId, { $push: { favourites: favouriteEvent._id } })
+/*         await User.findByIdAndUpdate(userId, { $push: { favourites: favouriteEvent._id } }) */
         
     } catch (error) {
         console.log(error)
