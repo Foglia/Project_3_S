@@ -11,41 +11,25 @@ router.get("/events", (req, res, next) => {
             console.log(response.data)
         })
     res.json(response.data)
-});
+}); //get all events
 
 
-router.post("/events/", async (req, res, next) => {
-    const { url } = req.body
+router.get("/events/:id", async (req, res, next) => {
+    const { title } = req.body
 
-    // this route will get all the events
+    // this route will get all the events by Name
 
     try {
         let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
-        let allEvents = response.data
+        let eventsAll = response.data
 
-        let event = allEvents.map((eventDetail) => eventDetail.url === url)/* [5].Name  */ 
-        console.log(event)
-        res.status(200).json(event)
+        let eventDetail = eventsAll.filter((events) => events.title === title)
+        console.log(eventDetail)
+        res.status(200).json(eventDetail)
     } catch (error) {
         console.log(error)
     }
 });
-
-
-router.get("/events/:id", async (req, res, next) => {
-const { title } = req.Event
-try {
-    let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
-    let allEvents = response.data
-
-    let event = allEvents.map((eventDetail) => eventDetail.url === url)/* [5].Name  */ 
-    console.log(event)
-    res.status(200).json(event)
-} catch (error) {
-    console.log(error)
-}
-});
-
 
 router.post("/events/favourite", async (req, res, next) => {
     const { Position } = req.body
@@ -61,12 +45,13 @@ router.post("/events/favourite", async (req, res, next) => {
 
         console.log(favouriteEvent)
 
-       await User.findByIdAndUpdate(userId, { $push: { favourites: favouriteEvent._id } }) 
-        
-    } catch (error) {z
+        await User.findByIdAndUpdate(userId, { $push: { favourites: favouriteEvent._id } })
+
+    } catch (error) {
+        z
         console.log(error)
         res.status(200).json(favouriteEvent)
     }
-}); 
+});
 
 module.exports = router;
