@@ -26,8 +26,8 @@ app.use("/auth", /* isAuthenticated, */ authRoutes);
 const eventsRoutes = require("./routes/events.routes");
 app.use("/api", /* isAuthenticated, */ eventsRoutes);
 
-/* const communityRoutes = require("./routes/community.routes");
-app.use("/api", communityRoutes);  */
+const communityRoutes = require("./routes/community.routes");
+app.use("/api", communityRoutes);
 
 //I'm unsure if we should use api in route here or if we should use /events
 
