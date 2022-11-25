@@ -131,25 +131,35 @@ router.post("/login", (req, res, next) => {
 
 // ..........................................................................//
 
+/* GET 1 USER BY ID */
 //Get User profile ......
-router.get('/profile/:userId', isAuthenticated, async (req, res) => {
+router.get('/profile/:id', async (req, res) => {
   try {
-  const { Id } = req.params
-  const currentUser = req.isAuthenticated = isAuthenticated
-  const editUser = await User.findById(Id);
-  res.json(editUser);
+  const { id } = req.params
+  const seeUser = await User.findById(id);
+  res.json(seeUser);
 } catch(error) {
   console.log(error);
 }
 });
 
-// json, no more render - redirect 
-router.put("/profile/:userId", async (req, res, next) => {
+/* GET ALL USERS */
+router.get('/users', async (req, res) => {
   try {
-    const { Id } = req.params //try params
-    const currentUser = req.isAuthenticated = isAuthenticated
-    const {firstName, lastName, gender, location ,aboutMe} = req.body;
-    const updatedUser = await User.findByIdAndUpdate(Id, {firstName, lastName, gender, location ,aboutMe});
+  const seeUsers = await User.find();
+  res.json(seeUsers);
+} catch(error) {
+  console.log(error);
+}
+});
+
+/* EDIT USER */
+// json, no more render - redirect 
+router.put("/profile/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params //try params
+    const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
+    const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
     res.json(updatedUser) //
   } catch(error) {
     console.log(error);

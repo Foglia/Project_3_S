@@ -2,20 +2,24 @@ const { Schema, model } = require("mongoose");
 
 const communitySchema = new Schema(
 {
-  Name: { 
+  title: { 
     type: String, 
     required: true 
    },
-  ImageUrl: { 
+  imageUrl: { 
     type: String 
   },
-  Location: {
+  location: {
     type: String,    
   },
   //Users Comments:  
   comments: {
     type: Schema.Types.ObjectId, ref: 'User' 
-  },  
+  },
+  //Users that will go to the refered event
+  users: {
+    type: Schema.Types.ObjectId, ref: 'User'
+  }  
 },
 {
   timestamps: true,
