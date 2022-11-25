@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 const commentSchema = new Schema(
 {
-    comment: {
+    comments: {
     type: String,
     required: false,
     },

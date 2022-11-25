@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require('axios');
-const { response } = require("../app");
+/* const { response } = require("../app"); */
 const Event = require("../models/Event.model");
 const User = require("../models/User.model");
 const Comment = require("../models/Comment")
@@ -23,14 +23,15 @@ router.get("/community/event/search", async (req, res, next) => {
         console.log(error)
         res.status(500).json(error)
     }
-});
+}); 
 
 // Get User that will Atendee
 // It is returning all users
-router.get('/community/users', async (req, res) => {
+router.get('/community', async (req, res) => {
+
   try {
-  const userAtendee = await User.find();
-  res.json(userAtendee);
+  const userAtendee = await User.find()
+  res.status(200).json(userAtendee);
 } catch(error) {
   res.json(error);  
 }
@@ -48,37 +49,39 @@ router.get('/community/comments', async (req, res, next) =>{
 })
 
 // Create Comments
-router.put('/community/:comment', isAuthenticated, async (req, res, next) => {
+router.post('/community/create-comment/:id', isAuthenticated, async (req, res, next) => {
   try {
-    const { comment } = req.body;
-    const userId = req.isAuthenticated;
-    const newComment = await Comment.create({comment ,userId});
+    const {id} = req.params;
+    const { comments } = req.body;
+    const user = req.payload;
+    const newComment = await Comment.create({comments, user: user._id});
     
-    // Push review to the community
-    const updateCommunity = await Community.create(userId, {
+    // Push comment to the community
+    /* const updateCommunity = await Community.findByIdAndUpdate(id, {
       $push: {
       comment: newComment._id,
     },
-    });
-    //Push review to the user
-    const updatedUser = await User.findByIdAndUpdate(userId, {
-      $push: {
-      comment: newComment._id,
-    },
-    });
+  }) */
+  // Push comment to the User
+    const updateUser = await User.findByIdAndUpdate(id, { $push: { comments: newComment._id },}, {new: true})
+    res.status(200).json(updateUser)
   } catch(error) {
-    res.json(error);  
+    console.log(error);  
   }
-})
+ })
 
 // Delete Comment
-router.put('/community/:comment', isAuthenticated, async (req, res, next) => {
-  const {id, eventName} = req.params;
+router.delete('/community/create-comment/:id', isAuthenticated, async (req, res, next) => {
   try {
-    const removeComment = await Comment.findByIdAndRemove(id);
-    await User.findByIdAndUpdate(removedComment.user, {
-      $pull: { comment: removedComment._id },
-    });
+    const {id} = req.params;
+
+    const deletedComment = await Comment.findByIdAndRemove(id);
+    const updatedUser = await User.findByIdAndUpdate(id, {
+      $pull: {
+      comments: deletedComment._id,
+    },
+  }, {new: true})
+    res.status(200).json(updatedUser);
   } catch(error) {
     res.json(error);  
   }
