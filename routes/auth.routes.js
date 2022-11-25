@@ -167,6 +167,18 @@ router.put("/profile/:id", async (req, res, next) => {
   }
 });
 
+router.get("/profile/:id", async (req, res, next) => {
+  const userId = req.params.id
+  const user = await User.findById(userId).populate("favorite");
+  res.render("profile/profile", user);
+});
+
+router.delete("/profile/:id", async (req, res, next) => {
+  const userId = req.params.id
+  const user = await User.deleteOne(userId).populate("favorite");
+  res.render("profile/profile", user);
+});
+
 module.exports = router;
 
 

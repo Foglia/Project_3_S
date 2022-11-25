@@ -29,29 +29,31 @@ router.get("/events/search", async (req, res, next) => {
         res.status(200).json(eventDetail)
     } catch (error) {
         console.log(error)
+        res.status(500).json(error)
     }
 });
 
 // front end string interpolation 
 
-router.post("/events/:id/favourite", isAuthenticated, async (req, res, next) => {
+router.post("/events/search/favourite", isAuthenticated, async (req, res, next) => {
     const { Name } = req.query
-    const userId = req.isAuthenticated; // na rota como parametro //req.payload._id
+    const userId = req.payload._id; // na rota como parametro //req.payload._id
     try {
         let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
 
         let allEvents = response.data
 
-        let event = allEvents.filter((events) => events.id === id)
+        let event = allEvents.filter((events) => events.Name === Name)[0]
 
         const favouriteEvent = await Event.create({
-            imageUrl: event.ImageUrl, who: event.Who, title: event.title, category: event.category,
-            type: event.type, permanent: event.permanent, startDate: event.startDate, endDate: event.endDate, location: event.location
+       imageUrl: event.ImageUrl,  Who: event.Who, title: event.Name, category: event.Theme,
+            type: event.Type, permanent: event.Permanent, startDate: event.StartDate, endDate: event.EndDate, location: event.Location,
+            where: event.Where, price: event.Price, info: event.Info, link: event.Url
         }) // primeiro nome do model, segundo nome do API
 
-        console.log(favouriteEvent) 
+      
 
-        await User.findByIdAndUpdate(userId, { $push: { favourites: favouriteEvent } })
+        await User.findByIdAndUpdate(userId, { $push: { favorite: favouriteEvent } })
         res.status(200).json(favouriteEvent)
     } catch (error) {
 
@@ -59,5 +61,20 @@ router.post("/events/:id/favourite", isAuthenticated, async (req, res, next) => 
         res.status(500).json(error)
     }
 });
+
+router.delete("/events/search/avourite/", async (req, res, next) => {
+    const { Name } = req.query
+    const userId = req.payload._id;
+    const {id} = req.params;
+    try {
+       
+      await User.findByIdAndUpdate(userId, {$pull: {favorite: favouriteEvent}})
+      await Event.findOnedAndRemove(i)
+  
+      res.redirect(`/profile/${userId}`)
+    } catch (error) {
+      console.log(error)
+    }
+  });
 
 module.exports = router;
