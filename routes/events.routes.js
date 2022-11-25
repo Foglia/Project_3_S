@@ -37,7 +37,7 @@ router.get("/events/search", async (req, res, next) => {
 
 router.post("/events/search/favourite", isAuthenticated, async (req, res, next) => {
     const { Name } = req.query
-    const userId = req.payload._id; // na rota como parametro //req.payload._id
+    const userId = req.payload._id // na rota como parametro //req.payload._id
     try {
         let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
 
@@ -46,12 +46,12 @@ router.post("/events/search/favourite", isAuthenticated, async (req, res, next) 
         let event = allEvents.filter((events) => events.Name === Name)[0]
 
         const favouriteEvent = await Event.create({
-       imageUrl: event.ImageUrl,  Who: event.Who, title: event.Name, category: event.Theme,
+            imageUrl: event.ImageUrl, Who: event.Who, title: event.Name, category: event.Theme,
             type: event.Type, permanent: event.Permanent, startDate: event.StartDate, endDate: event.EndDate, location: event.Location,
             where: event.Where, price: event.Price, info: event.Info, link: event.Url
         }) // primeiro nome do model, segundo nome do API
 
-      
+
 
         await User.findByIdAndUpdate(userId, { $push: { favorite: favouriteEvent } })
         res.status(200).json(favouriteEvent)
@@ -62,19 +62,35 @@ router.post("/events/search/favourite", isAuthenticated, async (req, res, next) 
     }
 });
 
-router.delete("/events/search/avourite/", async (req, res, next) => {
-    const { Name } = req.query
-    const userId = req.payload._id;
-    const {id} = req.params;
+/* router.delete("/events/search/favourite/remove", isAuthenticated, async, (req, res, next) => {
+    const { favouriteEvent } = req.query
+    const userId = req.payload._id
     try {
-       
-      await User.findByIdAndUpdate(userId, {$pull: {favorite: favouriteEvent}})
-      await Event.findOnedAndRemove(i)
-  
-      res.redirect(`/profile/${userId}`)
+        
+       await User.findByIdAndUpdate(userId, { $pull: { favorite: favouriteEvent } })
+        await Event.findOnedAndRemove(favouriteEvent)
+        res.status(200).json(favouriteEvent) 
+
     } catch (error) {
-      console.log(error)
+        console.log(error)
+        res.status(500).json(error)
     }
-  });
+}); */
+
+/* router.delete("/edit-favorites/:cocktailId",isAuthenticated, async (req, res, next) => {
+    try {
+      const {cocktailId} = req.params
+      const userId = req.payload._id
+  
+      await User.findByIdAndRemove(cocktailId, {userId})
+  
+  
+      res.status(200).json({
+        message: `The cocktail with the id ${cocktailId} was deleted successfully`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  });  */
 
 module.exports = router;
