@@ -13,9 +13,9 @@ const communitySchema = new Schema(
     type: String,    
   },
   //Users Comments:  
-  comments: {
-    type: Schema.Types.ObjectId, ref: 'User' 
-  },
+  comments: [{
+    type: Schema.Types.ObjectId, ref: 'Comment' 
+  }],
   //Users that will go to the refered event
   users: {
     type: Schema.Types.ObjectId, ref: 'User'

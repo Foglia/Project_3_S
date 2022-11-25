@@ -35,7 +35,10 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
-  favorite: [{type: Schema.Types.ObjectId, ref:"Event"}]
+  favorite: [{type: Schema.Types.ObjectId, ref:"Event"}],
+  comments: [{
+    type: Schema.Types.ObjectId, ref: 'Comment' 
+  }],
   },
   {
     timestamps: true,
