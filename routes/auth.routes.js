@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fileUploader = require('../config/cloudinary.config');
+const fileUploader = require("../config/cloudinary.config");
 
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
@@ -132,6 +132,16 @@ router.post("/login", (req, res, next) => {
 
 // ..........................................................................//
 
+/* GET ALL USERS */
+router.get('/users', async (req, res) => {
+  try {
+  const seeUsers = await User.find();
+  res.json(seeUsers);
+} catch(error) {
+  console.log(error);
+}
+});
+
 /* GET 1 USER BY ID */
 //Get User profile ......
 router.get('/profile/:id', async (req, res) => {
@@ -139,16 +149,6 @@ router.get('/profile/:id', async (req, res) => {
   const { id } = req.params
   const seeUser = await User.findById(id);
   res.json(seeUser);
-} catch(error) {
-  console.log(error);
-}
-});
-
-/* GET ALL USERS */
-router.get('/users', async (req, res) => {
-  try {
-  const seeUsers = await User.find();
-  res.json(seeUsers);
 } catch(error) {
   console.log(error);
 }
@@ -168,10 +168,19 @@ router.get('/users', async (req, res) => {
 //   }
 // });
 
-//img with cloudnary
-router.post('/profile/create', isAuthenticated, fileUploader.single('image'), async (req, res, next) => {
-  const user = req.payload._id;
-  let { firstName, lastName, gender, location, aboutMe } = req.body;
+//
+router.post('/upload', fileUploader.single('imageUrl'), (req, res, next) => {
+  if (!req.file) {
+    next(new Error('no file found'));
+    return;
+  }
+    res.json({ fileUrl: req.file.path });
+});
+
+
+router.post('/profile/create', isAuthenticated, fileUploader.single('imageUrl'), async (req, res, next) => {
+  const user = req.payload;
+  let { email, firstName, lastName, gender, location, aboutMe } = req.body;
   try {
     let imageUrl;
 
@@ -181,15 +190,15 @@ router.post('/profile/create', isAuthenticated, fileUploader.single('image'), as
       imageUrl = 'https://upload.wikimedia.org/wikipedia/en/e/ed/Nyan_cat_250px_frame.PNG';
     }
 
-    let createdProfile = await User.create({firstName, lastName, gender, location, aboutMe, imageUrl})
-    await User.findByIdAndUpdate(user,{$push:{uploads:createdImage._id}})
+    let createdProfile = await User.create({email, firstName, lastName, gender, location, aboutMe, imageUrl})
+    await User.findByIdAndUpdate(user,{$push:{uploads:createdProfile._id}})
   } catch (error) {
     console.log(error);
   }
 });
 
-
-router.put("/profile/:id", fileUploader.single('imageUrl'), async (req, res, next) => {
+// Edit Profile
+router.put("/edit-profile/:id", fileUploader.single('imageUrl'), isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params //try params
     const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
@@ -197,26 +206,25 @@ router.put("/profile/:id", fileUploader.single('imageUrl'), async (req, res, nex
     if (req.file) {
       imageUrl = req.file.path;
     } else {
-      imageUrl = currentImage;
+      imageUrl = imageUrl.default;
     }
 
     const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
     res.json(updatedUser) //
   } catch(error) {
     console.log(error);
-    next(error)
   }
 });
 
-//see profile
+//See profile
 router.get("/profile/:id", async (req, res, next) => {
   const userId = req.params.id
   const user = await User.findById(userId).populate("favorite");
   res.render("profile/profile", user);
 });
 
-//delete profile 
-router.delete("/profile/:id", async (req, res, next) => {
+//Delete profile 
+router.delete("/delete-profile/:id", async (req, res, next) => {
   const userId = req.params.id
   const user = await User.deleteOne(userId).populate("favorite");
   res.render("profile/profile", user);
