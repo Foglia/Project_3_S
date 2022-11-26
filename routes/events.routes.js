@@ -62,35 +62,19 @@ router.post("/events/search/favourite", isAuthenticated, async (req, res, next) 
     }
 });
 
-/* router.delete("/events/search/favourite/remove", isAuthenticated, async, (req, res, next) => {
-    const { favouriteEvent } = req.query
-    const userId = req.payload._id
+router.delete("/events/search/favourite/:id", isAuthenticated, async (req, res, next) => {
     try {
-        
-       await User.findByIdAndUpdate(userId, { $pull: { favorite: favouriteEvent } })
-        await Event.findOnedAndRemove(favouriteEvent)
-        res.status(200).json(favouriteEvent) 
+        const { id } = req.params
+        const userId = req.payload._id
+
+        await User.findByIdAndUpdate(userId, { $pull: { favorite: id } })
+        await Event.findByIdAndRemove(id)
+        res.status(200).json(id)
 
     } catch (error) {
         console.log(error)
         res.status(500).json(error)
     }
-}); */
-
-/* router.delete("/edit-favorites/:cocktailId",isAuthenticated, async (req, res, next) => {
-    try {
-      const {cocktailId} = req.params
-      const userId = req.payload._id
-  
-      await User.findByIdAndRemove(cocktailId, {userId})
-  
-  
-      res.status(200).json({
-        message: `The cocktail with the id ${cocktailId} was deleted successfully`,
-      });
-    } catch (error) {
-      next(error);
-    }
-  });  */
+});
 
 module.exports = router;
