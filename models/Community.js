@@ -13,20 +13,16 @@ const communitySchema = new Schema(
     type: String,    
   },
   //Users Comments:  
-  comments: [{
-    type: Schema.Types.ObjectId, ref: 'Comment' 
-  }],
+  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
   //Users that will go to the refered event
-  users: {
-    type: Schema.Types.ObjectId, ref: 'User'
-  }  
+  users: {type: Schema.Types.ObjectId, ref: 'User'},  
+  attendance: [ { type: Schema.Types.ObjectId, ref:"User" }],
 },
 {
   timestamps: true,
 }
 )
 
-// attendance: [ { type: Schema.Types.ObjectId, ref:"User" }],
 // comments: [];    
 
 const Community = model("Community", communitySchema);

@@ -168,15 +168,36 @@ router.get('/users', async (req, res) => {
 //   }
 // });
 
+//img with cloudnary
+router.post('/profile/create', isAuthenticated, fileUploader.single('image'), async (req, res, next) => {
+  const user = req.payload._id;
+  let { firstName, lastName, gender, location, aboutMe } = req.body;
+  try {
+    let imageUrl;
+
+    if (req.file) {
+      imageUrl = req.file.path;
+    } else {
+      imageUrl = 'https://upload.wikimedia.org/wikipedia/en/e/ed/Nyan_cat_250px_frame.PNG';
+    }
+
+    let createdProfile = await User.create({firstName, lastName, gender, location, aboutMe, imageUrl})
+    await User.findByIdAndUpdate(user,{$push:{uploads:createdImage._id}})
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+
 router.put("/profile/:id", fileUploader.single('imageUrl'), async (req, res, next) => {
   try {
     const { id } = req.params //try params
     const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
     
     if (req.file) {
-      imgUrl = req.file.path;
+      imageUrl = req.file.path;
     } else {
-      imgUrl = currentImage;
+      imageUrl = currentImage;
     }
 
     const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
@@ -187,12 +208,14 @@ router.put("/profile/:id", fileUploader.single('imageUrl'), async (req, res, nex
   }
 });
 
+//see profile
 router.get("/profile/:id", async (req, res, next) => {
   const userId = req.params.id
   const user = await User.findById(userId).populate("favorite");
   res.render("profile/profile", user);
 });
 
+//delete profile 
 router.delete("/profile/:id", async (req, res, next) => {
   const userId = req.params.id
   const user = await User.deleteOne(userId).populate("favorite");
