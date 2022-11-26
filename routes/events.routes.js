@@ -46,9 +46,8 @@ router.post("/events/search/favourite", isAuthenticated, async (req, res, next) 
         let event = allEvents.filter((events) => events.Name === Name)[0]
 
         const favouriteEvent = await Event.create({
-            imageUrl: event.ImageUrl, Who: event.Who, title: event.Name, category: event.Theme,
-            type: event.Type, permanent: event.Permanent, startDate: event.StartDate, endDate: event.EndDate, location: event.Location,
-            where: event.Where, price: event.Price, info: event.Info, link: event.Url
+            imageUrl: event.ImageUrl, Who: event.Who, title: event.Name, location: event.Location,
+            where: event.Where
         }) // primeiro nome do model, segundo nome do API
 
 

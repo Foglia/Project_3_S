@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require('axios');
-/* const { response } = require("../app"); */
+const { response } = require("../app");
 const Event = require("../models/Event.model");
 const User = require("../models/User.model");
 const Comment = require("../models/Comment")
@@ -11,79 +11,112 @@ const Community = require("../models/Community");
 // Get an Event by :id and return to the community page
 // It is not returning
 router.get("/community/event/search", async (req, res, next) => {
-    try {
-        const { Name } = req.query;
-        let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
-        let eventsAll = response.data
+  try {
+    const { Name } = req.query;
+    let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
+    let eventsAll = response.data
 
-        let eventDetail = eventsAll.filter((events) => events.Name === Name)[0]
-        console.log(eventDetail)
-        res.status(200).json(eventDetail)
-    } catch (error) {
-        console.log(error)
-        res.status(500).json(error)
-    }
-}); 
+    let eventDetail = eventsAll.filter((events) => events.Name === Name)[0]
+    console.log(eventDetail)
+    res.status(200).json(eventDetail)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error)
+  }
+});
+
+router.post("/events/search/community", isAuthenticated, async (req, res, next) => {
+  const { Name } = req.query
+  const userId = req.payload._id // na rota como parametro //req.payload._id
+  try {
+    let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
+
+    let allEvents = response.data
+
+    let event = allEvents.filter((events) => events.Name === Name)[0]
+
+    const attendEvent = await Community.create({
+      imageUrl: event.ImageUrl, title: event.Name, category: event.Theme,
+      type: event.Type, permanent: event.Permanent, startDate: event.StartDate, endDate: event.EndDate, location: event.Location,
+      where: event.Where, price: event.Price, info: event.Info, link: event.Url
+    }) // primeiro nome do model, segundo nome do API
+    console.log(attendEvent)
+
+    await User.create(userId, { $push: { atendeeEvent: attendEvent } })
+    await Comment.create(userId, { $push: { attendance: attendEvent } })
+    
+    // we will need to create a route that will direct everything to Community and will allow the
+    // user to have attendancy counted 
+    //populate?
+
+    res.status(200).json(attendEvent)
+
+  } catch (error) {
+
+    console.log(error)
+    res.status(500).json(error)
+  }
+});
 
 // Get User that will Atendee
 // It is returning all users
 router.get('/community', async (req, res) => {
 
   try {
-  const userAtendee = await User.find()
-  res.status(200).json(userAtendee);
-} catch(error) {
-  res.json(error);  
-}
+    const userAtendee = await User.find()
+    res.status(200).json(userAtendee);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
 // COMMENTS
 // See Comments
-router.get('/community/comments', async (req, res, next) =>{
-   try {
+router.get('/community/comments', async (req, res, next) => {
+  try {
     const commentsView = await Comment.find();
     res.json(commentsView)
-  } catch(error) {
-    res.json(error);  
+  } catch (error) {
+    res.json(error);
   }
 })
 
 // Create Comments
 router.post('/community/create-comment/:id', isAuthenticated, async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const { comments } = req.body;
     const user = req.payload;
-    const newComment = await Comment.create({comments, user: user._id});
-    
+    const newComment = await Comment.create({ comments, user: user._id });
+
     // Push comment to the community
     /* const updateCommunity = await Community.findByIdAndUpdate(id, {
       $push: {
       comment: newComment._id,
     },
   }) */
-  // Push comment to the User
-    const updateUser = await User.findByIdAndUpdate(id, { $push: { comments: newComment._id },}, {new: true})
+    // Push comment to the User
+    const updateUser = await User.findByIdAndUpdate(id, { $push: { comments: newComment._id }, }, { new: true })
     res.status(200).json(updateUser)
-  } catch(error) {
-    console.log(error);  
+  } catch (error) {
+    console.log(error);
   }
- })
+})
 
 // Delete Comment
 router.delete('/community/create-comment/:id', isAuthenticated, async (req, res, next) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
 
     const deletedComment = await Comment.findByIdAndRemove(id);
     const updatedUser = await User.findByIdAndUpdate(id, {
       $pull: {
-      comments: deletedComment._id,
-    },
-  }, {new: true})
+        comments: deletedComment._id,
+      },
+    }, { new: true })
     res.status(200).json(updatedUser);
-  } catch(error) {
-    res.json(error);  
+  } catch (error) {
+    res.json(error);
   }
 })
 
