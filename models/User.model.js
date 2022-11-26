@@ -36,15 +36,13 @@ const userSchema = new Schema(
       required: false,
     },
   favorite: [{type: Schema.Types.ObjectId, ref:"Event"}],
-  comments: [{
-    type: Schema.Types.ObjectId, ref: 'Comment' 
-  }],
+  comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
+  atendeeEvent: [{type: Schema.Types.ObjectId, ref:"Event"}]
   },
   {
     timestamps: true,
   }
 );
 
-// atendeeEvent: [{type: Schema.Types.ObjectId, ref:"Event"}];
 const User = model("User", userSchema);
 module.exports = User;

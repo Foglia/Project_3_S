@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const fileUploader = require('../config/cloudinary.config');
 
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
@@ -155,10 +156,29 @@ router.get('/users', async (req, res) => {
 
 /* EDIT USER */
 // json, no more render - redirect 
-router.put("/profile/:id", async (req, res, next) => {
+// router.put("/profile/:id", async (req, res, next) => {
+//   try {
+//     const { id } = req.params //try params
+//     const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
+//     const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
+//     res.json(updatedUser) //
+//   } catch(error) {
+//     console.log(error);
+//     next(error)
+//   }
+// });
+
+router.put("/profile/:id", fileUploader.single('imageUrl'), async (req, res, next) => {
   try {
     const { id } = req.params //try params
     const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
+    
+    if (req.file) {
+      imgUrl = req.file.path;
+    } else {
+      imgUrl = currentImage;
+    }
+
     const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
     res.json(updatedUser) //
   } catch(error) {
