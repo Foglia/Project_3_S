@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const fileUploader = require("../config/cloudinary.config");
 
+
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
 
@@ -27,22 +28,22 @@ router.post("/signup", (req, res, next) => {
     return;
   }
 
-  // // This regular expression check that the email is of a valid format
-  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  // if (!emailRegex.test(email)) {
-  //   res.status(400).json({ message: "Provide a valid email address." });
-  //   return;
-  // }
+  // This regular expression check that the email is of a valid format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (!emailRegex.test(email)) {
+    res.status(400).json({ message: "Provide a valid email address." });
+    return;
+  }
 
-  // // This regular expression checks password for special characters and minimum length
-  // const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-  // if (!passwordRegex.test(password)) {
-  //   res.status(400).json({
-  //     message:
-  //       "Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.",
-  //   });
-  //   return;
-  // }
+  // This regular expression checks password for special characters and minimum length
+  const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+  if (!passwordRegex.test(password)) {
+    res.status(400).json({
+      message:
+        "Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.",
+    });
+    return;
+  }
 
   // Check the users collection if a user with the same email already exists
   User.findOne({ email })
@@ -130,9 +131,29 @@ router.post("/login", (req, res, next) => {
   res.status(200).json(req.payload);
 });
 
-// ..........................................................................//
+// AUTH CRUD --
 
-/* GET ALL USERS */
+// POST /auth/upload/:id - Image upload
+router.post('/upload/:id', fileUploader.single('imageUrl'), isAuthenticated, async (req, res, next) => {
+  const user = req.payload;
+  let { imageUrl } = req.body
+  try {
+    let imageUrl;
+
+    if (req.file) {
+      imageUrl = req.file.path;
+    } else {
+      imageUrl = 'https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg';
+    }
+
+    let imageCreate = await User.findByIdAndUpdate( user, { imageUrl }, { new: true });
+    return res.status(200).json(imageCreate);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /aut/users - See all users 
 router.get('/users', async (req, res) => {
   try {
   const seeUsers = await User.find();
@@ -142,8 +163,7 @@ router.get('/users', async (req, res) => {
 }
 });
 
-/* GET 1 USER BY ID */
-//Get User profile ......
+// GET auth/profile/:id - See one user
 router.get('/profile/:id', async (req, res) => {
   try {
   const { id } = req.params
@@ -154,85 +174,31 @@ router.get('/profile/:id', async (req, res) => {
 }
 });
 
-/* EDIT USER */
-// json, no more render - redirect 
-// router.put("/profile/:id", async (req, res, next) => {
-//   try {
-//     const { id } = req.params //try params
-//     const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
-//     const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
-//     res.json(updatedUser) //
-//   } catch(error) {
-//     console.log(error);
-//     next(error)
-//   }
-// });
-
-//
-router.post('/upload', fileUploader.single('imageUrl'), (req, res, next) => {
-  if (!req.file) {
-    next(new Error('no file found'));
-    return;
-  }
-    res.json({ fileUrl: req.file.path });
-});
-
-
-router.post('/profile/create', isAuthenticated, fileUploader.single('imageUrl'), async (req, res, next) => {
-  const user = req.payload;
-  let { email, firstName, lastName, gender, location, aboutMe } = req.body;
-  try {
-    let imageUrl;
-
-    if (req.file) {
-      imageUrl = req.file.path;
-    } else {
-      imageUrl = 'https://upload.wikimedia.org/wikipedia/en/e/ed/Nyan_cat_250px_frame.PNG';
-    }
-
-    let createdProfile = await User.create({email, firstName, lastName, gender, location, aboutMe, imageUrl})
-    await User.findByIdAndUpdate(user,{$push:{uploads:createdProfile._id}})
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-// Edit Profile
-router.put("/edit-profile/:id", fileUploader.single('imageUrl'), isAuthenticated, async (req, res, next) => {
+// PUT /auth/edit-profile/:id - Edit user profile
+router.put("/edit-profile/:id", isAuthenticated, async (req, res, next) => {
+  let { email, firstName, lastName, gender, location ,aboutMe, imageUrl} = req.body;
   try {
     const { id } = req.params //try params
-    const {imageUrl, email, firstName, lastName, gender, location ,aboutMe} = req.body;
-    
-    if (req.file) {
-      imageUrl = req.file.path;
-    } else {
-      imageUrl = imageUrl.default;
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(id, {imageUrl, email, firstName, lastName, gender, location ,aboutMe}, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(id, { email, firstName, lastName, gender, location ,aboutMe, imageUrl}, { new: true });
     res.json(updatedUser) //
   } catch(error) {
     console.log(error);
+    next(error)
   }
 });
 
-//See profile
-router.get("/profile/:id", async (req, res, next) => {
-  const userId = req.params.id
-  const user = await User.findById(userId).populate("favorite");
-  res.render("profile/profile", user);
-});
+// //DELETE /auth/delete-profile/:id - Delete the user
+router.delete('/delete-profile/:id', isAuthenticated, async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-//Delete profile 
-router.delete("/delete-profile/:id", async (req, res, next) => {
-  const userId = req.params.id
-  const user = await User.deleteOne(userId).populate("favorite");
-  res.render("profile/profile", user);
-});
+    const deletedUser = await User.findByIdAndRemove(id);
+    res.status(200).json(deletedUser);
+  } catch (error) {
+    res.json(error);
+  }
+})
 
 module.exports = router;
 
 
-//post sem id
-//put com id
-// isAuthenticated // TIROU

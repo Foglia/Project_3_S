@@ -8,9 +8,9 @@ const Comment = require("../models/Comment")
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 const Community = require("../models/Community");
 
-// Get an Event by :id and return to the community page
-// It is not returning
-router.get("/community/event/search", async (req, res, next) => {
+
+// GET /api/community/event-search - Find an Event by name
+router.get("/community/event-search", async (req, res, next) => {
   try {
     const { Name } = req.query;
     let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
@@ -25,6 +25,7 @@ router.get("/community/event/search", async (req, res, next) => {
   }
 });
 
+// POST /api/community/event-search - Find an Event by name
 router.post("/events/search/community", isAuthenticated, async (req, res, next) => {
   const { Name } = req.query
   const userId = req.payload._id // na rota como parametro //req.payload._id
@@ -58,8 +59,8 @@ router.post("/events/search/community", isAuthenticated, async (req, res, next) 
   }
 });
 
-// Get User that will Atendee
-// It is returning all users
+//GET - /api/community - User that will Atendee
+//PROBLEM - Show only the users that have clicked Attendence button
 router.get('/community', async (req, res) => {
 
   try {
@@ -70,18 +71,9 @@ router.get('/community', async (req, res) => {
   }
 });
 
-// COMMENTS
-// See Comments
-router.get('/community/comments', async (req, res, next) => {
-  try {
-    const commentsView = await Comment.find();
-    res.json(commentsView)
-  } catch (error) {
-    res.json(error);
-  }
-})
+// COMMENTS CRUD --
 
-// Create Comments
+// POST - /api/community/create-comment/:ID - Create a Comment
 router.post('/community/create-comment/:id', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -103,8 +95,19 @@ router.post('/community/create-comment/:id', isAuthenticated, async (req, res, n
   }
 })
 
-// Delete Comment
-router.delete('/community/create-comment/:id', isAuthenticated, async (req, res, next) => {
+// GET - /api/community/comments - See all the Coments
+router.get('/community/comments', async (req, res, next) => {
+  try {
+    const commentsView = await Comment.find();
+    res.json(commentsView)
+  } catch (error) {
+    res.json(error);
+  }
+})
+
+// DELETE -  /api/community/delete-comment/:id
+// PROBLEM - Comments can be deleted by anyone
+router.delete('/community/delete-comment/:id', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
 
