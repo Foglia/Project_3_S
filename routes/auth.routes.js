@@ -133,7 +133,7 @@ router.post("/login", (req, res, next) => {
 
 // AUTH CRUD --
 
-// POST /auth/upload/:id - Image upload
+// POST /api/upload/:id - Image upload
 router.post('/upload/:id', fileUploader.single('imageUrl'), isAuthenticated, async (req, res, next) => {
   const user = req.payload;
   let { imageUrl } = req.body
@@ -153,7 +153,7 @@ router.post('/upload/:id', fileUploader.single('imageUrl'), isAuthenticated, asy
   }
 });
 
-// GET /aut/users - See all users 
+// GET /api/users - See all users 
 router.get('/users', async (req, res) => {
   try {
   const seeUsers = await User.find();
@@ -163,7 +163,7 @@ router.get('/users', async (req, res) => {
 }
 });
 
-// GET auth/profile/:id - See one user
+// GET api/profile/:id - See one user
 router.get('/profile/:id', async (req, res) => {
   try {
   const { id } = req.params
@@ -174,7 +174,7 @@ router.get('/profile/:id', async (req, res) => {
 }
 });
 
-// PUT /auth/edit-profile/:id - Edit user profile
+// PUT /api/edit-profile/:id - Edit user profile
 router.put("/edit-profile/:id", isAuthenticated, async (req, res, next) => {
   let { email, firstName, lastName, gender, location ,aboutMe, imageUrl} = req.body;
   try {
@@ -187,7 +187,7 @@ router.put("/edit-profile/:id", isAuthenticated, async (req, res, next) => {
   }
 });
 
-// //DELETE /auth/delete-profile/:id - Delete the user
+// //DELETE /api/delete-profile/:id - Delete the user
 router.delete('/delete-profile/:id', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
