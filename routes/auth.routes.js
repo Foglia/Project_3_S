@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fileUploader = require("../config/cloudinary.config");
+
 
 
 // ℹ️ Handles password encryption
@@ -132,26 +132,6 @@ router.post("/login", (req, res, next) => {
 });
 
 // AUTH CRUD --
-
-// POST /api/upload/:id - Image upload
-router.post('/upload/:id', fileUploader.single('imageUrl'), isAuthenticated, async (req, res, next) => {
-  const user = req.payload;
-  let { imageUrl } = req.body
-  try {
-    let imageUrl;
-
-    if (req.file) {
-      imageUrl = req.file.path;
-    } else {
-      imageUrl = 'https://t3.ftcdn.net/jpg/03/46/83/96/360_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg';
-    }
-
-    let imageCreate = await User.findByIdAndUpdate( user, { imageUrl }, { new: true });
-    return res.status(200).json(imageCreate);
-  } catch (error) {
-    next(error);
-  }
-});
 
 // GET /api/users - See all users 
 router.get('/users', isAuthenticated, async (req, res) => {

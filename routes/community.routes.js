@@ -14,10 +14,9 @@ router.get("/events", async (req, res, next) => {
     let response = await axios.get("http://culturaportugal.gov.pt/umbraco/api/eventsapi/GetEvents")
     let eventsAll = response.data
 
- 
     res.status(200).json(eventsAll)
   } catch (error) {
-    //console.log(error)
+    console.log(error)
     res.status(500).json(error)
   }
 });
