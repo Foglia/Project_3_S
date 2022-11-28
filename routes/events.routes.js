@@ -6,16 +6,15 @@ const Event = require("../models/Event.model");
 const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 
-router.get("/events", (req, res, next) => {
+/* router.get("/events", isAuthenticated, (req, res, next) => {
     axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca") //limit either slice or map
         .then(response => {
             console.log(response.data)
         })
     res.json(response.data)
-}); //get all events
+}); //get all events */
 
-
-router.get("/events/search", async (req, res, next) => {
+router.get("/events/search", isAuthenticated, async (req, res, next) => {
     try {
         const { Name } = req.query;
 

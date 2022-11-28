@@ -49,8 +49,7 @@ const eventSchema = new Schema(
  link: { //Url at the API
     type: String,
   },
-users: {type: Schema.Types.ObjectId, ref: 'User'},  
-attendance: [ { type: Schema.Types.ObjectId, ref:"User" }],
+attendance: [{ type: Schema.Types.ObjectId, ref:"User" }],
 comments: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
 },
 {

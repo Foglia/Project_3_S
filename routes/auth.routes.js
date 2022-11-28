@@ -154,7 +154,7 @@ router.post('/upload/:id', fileUploader.single('imageUrl'), isAuthenticated, asy
 });
 
 // GET /api/users - See all users 
-router.get('/users', async (req, res) => {
+router.get('/users', isAuthenticated, async (req, res) => {
   try {
   const seeUsers = await User.find();
   res.json(seeUsers);
@@ -164,10 +164,10 @@ router.get('/users', async (req, res) => {
 });
 
 // GET api/profile/:id - See one user
-router.get('/profile/:id', async (req, res) => {
+router.get('/profile/:id', isAuthenticated, async (req, res) => {
   try {
   const { id } = req.params
-  const seeUser = await User.findById(id);
+  const seeUser = await User.findById(id).populate("atendeeEvent favorite");
   res.json(seeUser);
 } catch(error) {
   console.log(error);
