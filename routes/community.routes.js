@@ -9,6 +9,7 @@ const Community = require("../models/Community");
 
 
 
+
 //GET ALL events from the API
 router.get("/events", async (req, res, next) => {
   try {
@@ -39,7 +40,7 @@ router.get("/event-search", async (req, res, next) => {
 });
 
 // POST - create an event with ID in our database
-router.post("/events", isAuthenticated, async (req, res, next) => {
+router.post("/event-search", isAuthenticated, async (req, res, next) => {
   const { Name } = req.query
   const userId = req.payload._id // na rota como parametro //req.payload._id
   try {
@@ -88,7 +89,7 @@ router.get('/events/:id', async (req, res, next) => {
 
 //Community route 
 
-router.get('/community', async (req, res, next) => {
+router.get("/community/:id", async (req, res, next) => {
   try {
     const { id } = req.params
 
@@ -103,7 +104,7 @@ router.get('/community', async (req, res, next) => {
 // COMMENTS CRUD --
 
 // POST - /api/community/create-comment/:ID - Create a Comment
-router.post('/events/create-comment/:id', isAuthenticated, async (req, res, next) => {
+router.post('/events/:id/create-comment', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { comments } = req.body;
