@@ -86,6 +86,19 @@ router.get('/events/:id', async (req, res, next) => {
   }
 })
 
+//Community route 
+
+router.get('/community', async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    let eventDetails = await Event.findById(id).populate("attendance comments")
+    res.status(200).json(eventDetails)
+  } catch (error) {
+    res.json(error)
+    next(error)
+  }
+})
 
 // COMMENTS CRUD --
 
@@ -154,8 +167,8 @@ router.put('/events/favorite/:id', isAuthenticated, async (req, res, next) => {
     const { id } = req.params;
     const userId = req.payload._id
 
-    const favourite = await Event.findByIdAndUpdate(id, {$push: {favorite: userId}});
-    
+    const favourite = await Event.findByIdAndUpdate(id, { $push: { favorite: userId } });
+
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { favorite: id } }, { new: true })
 
     res.status(200).json(updatedUser)
