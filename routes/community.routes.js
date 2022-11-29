@@ -144,6 +144,19 @@ router.delete('/events/delete-comment/:id', isAuthenticated, async (req, res, ne
   }
 })
 
+//Show comments in community 
+
+router.get('/events/comment/:id', isAuthenticated, async (req, res, next) => {
+  try {
+    const userId = req.payload._id  
+
+    const showComment = await Comment.find();
+    res.status(200).json(showComment);
+  } catch (error) {
+    res.json(error);
+  }
+})
+
 //Attendance
 
 router.put('/events/attend/:id', isAuthenticated, async (req, res, next) => {
@@ -190,34 +203,5 @@ router.put('/events/favorite/:id', isAuthenticated, async (req, res, next) => {
   }
 })
 
-
-
-// router.get("/events", (req, res, next) => {
-//     axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca") //limit either slice or map
-//         .then(response => {
-//             console.log(response.data)
-//         })
-//     res.json(response.data)
-// }); //get all events
-
-
-// router.get("/events/search", async (req, res, next) => {
-//     try {
-//         const { Name } = req.query;
-
-//         // this route will get all the events by Name
-
-//         let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
-//         let eventsAll = response.data
-
-//         let eventDetail = eventsAll.filter((events) => events.Name === Name)[0]
-//         console.log(eventDetail)
-//         res.status(200).json(eventDetail)
-//     } catch (error) {
-//         console.log(error)
-//     }
-// });
-
-// front end string interpolation 
 
 module.exports = router;
