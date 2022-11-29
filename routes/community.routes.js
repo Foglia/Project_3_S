@@ -151,8 +151,13 @@ router.put('/events/attend/:id', isAuthenticated, async (req, res, next) => {
     const { id } = req.params;
     const userId = req.payload._id
 
+    const attendanceExists = await Event.findById(id)
+    if ( attendanceExists.attendance.includes(userId)) {
+      res.status(403).json({message: 'already att'})
+      return 
+    }
     const updateEvent = await Event.findByIdAndUpdate(id, { $push: { attendance: userId } });
-
+    
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { atendeeEvent: id } }, { new: true })
 
     res.status(200).json(updatedUser)
@@ -168,6 +173,11 @@ router.put('/events/favorite/:id', isAuthenticated, async (req, res, next) => {
     const { id } = req.params;
     const userId = req.payload._id
 
+    const eventExists = await Event.findById(id)
+    if ( eventExists.favorite.includes(userId)) {
+      res.status(403).json({message: 'already fav'})
+      return 
+    }
     const favourite = await Event.findByIdAndUpdate(id, { $push: { favorite: userId } });
 
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { favorite: id } }, { new: true })
