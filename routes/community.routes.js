@@ -5,9 +5,6 @@ const Event = require("../models/Event.model");
 const User = require("../models/User.model");
 const Comment = require("../models/Comment")
 const { isAuthenticated } = require("../middleware/jwt.middleware");
-const Community = require("../models/Community");
-
-
 
 
 //GET ALL events from the API
@@ -42,7 +39,7 @@ router.get("/event-search", async (req, res, next) => {
 // POST - create an event with ID in our database
 router.post("/event-search", isAuthenticated, async (req, res, next) => {
   const { Name } = req.query
-  const userId = req.payload._id // na rota como parametro //req.payload._id
+  const userId = req.payload._id 
   try {
     let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
 
@@ -62,7 +59,7 @@ router.post("/event-search", isAuthenticated, async (req, res, next) => {
       imageUrl: event.ImageUrl, title: event.Name, category: event.Theme,
       type: event.Type, permanent: event.Permanent, startDate: event.StartDate, endDate: event.EndDate, location: event.Location,
       where: event.Where, price: event.Price, info: event.Info, link: event.Url
-    }) // primeiro nome do model, segundo nome do API
+    }) 
     console.log(attendEvent)
 
     res.status(200).json(attendEvent)
@@ -73,23 +70,8 @@ router.post("/event-search", isAuthenticated, async (req, res, next) => {
   }
 });
 
-//Get details
-//From the DB!
+//Get details from MB
 router.get('/events/:id', async (req, res, next) => {
-  try {
-    const { id } = req.params
-
-    let eventDetails = await Event.findById(id).populate("attendance comments")
-    res.status(200).json(eventDetails)
-  } catch (error) {
-    res.json(error)
-    next(error)
-  }
-})
-
-//Community route 
-
-router.get("/community/:id", async (req, res, next) => {
   try {
     const { id } = req.params
 
@@ -107,12 +89,12 @@ router.get("/community/:id", async (req, res, next) => {
 router.post('/events/:id/create-comment', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { comments } = req.body;
+    const { title, description } = req.body;
     const user = req.payload;
-    const newComment = await Comment.create({ comments, user: user._id });
+    const newComment = await Comment.create({ title, description, user: user._id });
 
     // Push comment to the event
-    const updateEvent = await Event.findByIdAndUpdate(id, {
+    await Event.findByIdAndUpdate(id, {
       $push: {
         comments: newComment._id,
       },
@@ -126,18 +108,18 @@ router.post('/events/:id/create-comment', isAuthenticated, async (req, res, next
 })
 
 // DELETE -  /api/community/delete-comment/:id
-// PROBLEM - Comments can be deleted by anyone
-router.delete('/events/delete-comment/:id', isAuthenticated, async (req, res, next) => {
+router.delete('/events/:id/delete-comment/', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.payload._id
 
-    const deletedComment = await Comment.findByIdAndRemove(id);
+    await Comment.findByIdAndRemove(id);
+    res.status(200).json();
     const updatedUser = await User.findByIdAndUpdate(userId, {
       $pull: {
         comments: deletedComment._id,
       },
-    }, { new: true })
+    }, { new: true } )
     res.status(200).json(updatedUser);
   } catch (error) {
     res.json(error);
@@ -148,9 +130,10 @@ router.delete('/events/delete-comment/:id', isAuthenticated, async (req, res, ne
 
 router.get('/events/comment/:id', isAuthenticated, async (req, res, next) => {
   try {
-    const userId = req.payload._id  
+    const { id } = req.params;
+    const userId = req.payload._id
 
-    const showComment = await Comment.find();
+    const showComment = await Comment.findById(id);
     res.status(200).json(showComment);
   } catch (error) {
     res.json(error);
@@ -164,13 +147,8 @@ router.put('/events/attend/:id', isAuthenticated, async (req, res, next) => {
     const { id } = req.params;
     const userId = req.payload._id
 
-    const attendanceExists = await Event.findById(id)
-    if ( attendanceExists.attendance.includes(userId)) {
-      res.status(403).json({message: 'already att'})
-      return 
-    }
     const updateEvent = await Event.findByIdAndUpdate(id, { $push: { attendance: userId } });
-    
+
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { atendeeEvent: id } }, { new: true })
 
     res.status(200).json(updatedUser)
@@ -186,11 +164,6 @@ router.put('/events/favorite/:id', isAuthenticated, async (req, res, next) => {
     const { id } = req.params;
     const userId = req.payload._id
 
-    const eventExists = await Event.findById(id)
-    if ( eventExists.favorite.includes(userId)) {
-      res.status(403).json({message: 'already fav'})
-      return 
-    }
     const favourite = await Event.findByIdAndUpdate(id, { $push: { favorite: userId } });
 
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { favorite: id } }, { new: true })
@@ -202,6 +175,5 @@ router.put('/events/favorite/:id', isAuthenticated, async (req, res, next) => {
     next(error)
   }
 })
-
 
 module.exports = router;
