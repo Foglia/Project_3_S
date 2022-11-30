@@ -49,6 +49,7 @@ const eventSchema = new Schema(
       link: { //Url at the API
          type: String,
       },
+      favorite: [{type: Schema.Types.ObjectId, ref:"Event"}],
       attendance: [{ type: Schema.Types.ObjectId, ref: 'User' }],
       comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
    },

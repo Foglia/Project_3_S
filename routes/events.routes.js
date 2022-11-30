@@ -75,4 +75,5 @@ router.delete("/events/search/favourite/:id", isAuthenticated, async (req, res, 
     }
 });
 
+
 module.exports = router;
