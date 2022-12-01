@@ -39,7 +39,7 @@ router.get("/event-search", async (req, res, next) => {
 // POST - create an event with ID in our database
 router.post("/event-search", isAuthenticated, async (req, res, next) => {
   const { Name } = req.query
-  const userId = req.payload._id 
+  const userId = req.payload._id
   try {
     let response = await axios.get("https://dados.gov.pt/pt/datasets/r/588d5c20-0851-4c34-b5da-dcb1239e7bca")
 
@@ -59,7 +59,7 @@ router.post("/event-search", isAuthenticated, async (req, res, next) => {
       imageUrl: event.ImageUrl, title: event.Name, category: event.Theme,
       type: event.Type, permanent: event.Permanent, startDate: event.StartDate, endDate: event.EndDate, location: event.Location,
       where: event.Where, price: event.Price, info: event.Info, link: event.Url
-    }) 
+    })
     console.log(attendEvent)
 
     res.status(200).json(attendEvent)
@@ -119,7 +119,7 @@ router.delete('/events/:id/delete-comment/', isAuthenticated, async (req, res, n
       $pull: {
         comments: deletedComment._id,
       },
-    }, { new: true } )
+    }, { new: true })
     res.status(200).json(updatedUser);
   } catch (error) {
     res.json(error);
@@ -146,8 +146,15 @@ router.put('/events/attend/:id', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.payload._id
+/* 
+    const eventExists = await Event.findById(id)
+    if (eventExists.event.includes(userId)) {
+      res.status(403).json({ message: 'already att' })
+      return
+    } */
 
     const updateEvent = await Event.findByIdAndUpdate(id, { $push: { attendance: userId } });
+
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { atendeeEvent: id } }, { new: true })
 
     res.status(200).json(updatedUser)
@@ -158,19 +165,19 @@ router.put('/events/attend/:id', isAuthenticated, async (req, res, next) => {
   }
 })
 
-// Favorites
-
 router.put('/events/favorite/:id', isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.payload._id
 
     const favoriteExists = await Event.findById(id)
-    if ( favoriteExists.favorite.includes(userId)) {
-      res.status(403).json({message: 'already fav'})
-      return 
+    if (favoriteExists.favorite.includes(userId)) {
+      res.status(403).json({ message: 'already fav' })
+      return
     }
-    const updateEvent = await Event.findByIdAndUpdate(id, { $push: { favorite: userId } });
+
+    const favourite = await Event.findByIdAndUpdate(id, { $push: { favorite: userId } });
+
     const updatedUser = await User.findByIdAndUpdate(userId, { $push: { favorite: id } }, { new: true })
 
     res.status(200).json(updatedUser)
