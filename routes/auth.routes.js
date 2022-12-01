@@ -18,10 +18,10 @@ const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { email, password } = req.body;
 
   // Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === "") {
+  if (email === "" || password === "") {
     res.status(400).json({ message: "Provide email, password and name" });
     return;
   }
@@ -58,15 +58,15 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name });
+      return User.create({ email, password: hashedPassword });
     })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, name, _id } = createdUser;
+      const { email, _id } = createdUser;
 
       // Create a new object that doesn't expose the password
-      const user = { email, name, _id };
+      const user = { email, _id };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
@@ -87,6 +87,7 @@ router.post("/login", (req, res, next) => {
   // Check the users collection if a user with the same email exists
   User.findOne({ email })
     .then((foundUser) => {
+
       if (!foundUser) {
         // If the user is not found, send an error response
         res.status(401).json({ message: "User not found." });
@@ -98,15 +99,15 @@ router.post("/login", (req, res, next) => {
 
       if (passwordCorrect) {
         // Deconstruct the user object to omit the password
-        const { _id, email, name } = foundUser;
+        const { _id, email } = foundUser;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, name };
+        const payload = { _id, email };
 
         // Create a JSON Web Token and sign it
         const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
           algorithm: "HS256",
-          expiresIn: "6h",
+          expiresIn: "12d",
         });
 
         // Send the token as the response
@@ -119,7 +120,7 @@ router.post("/login", (req, res, next) => {
 });
 
 // GET  /auth/verify  -  Used to verify JWT stored on the client
-router.get("/verify", isAuthenticated, (req, res, next) => {
+  router.get("/verify", isAuthenticated, (req, res, next) => {
   // If JWT token is valid the payload gets decoded by the
   // isAuthenticated middleware and is made available on `req.payload`
   console.log(`req.payload`, req.payload);
@@ -128,4 +129,54 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
   res.status(200).json(req.payload);
 });
 
+// AUTH CRUD --
+
+// GET /api/users - See all users 
+router.get('/users', isAuthenticated, async (req, res) => {
+  try {
+  const seeUsers = await User.find();
+  res.json(seeUsers);
+} catch(error) {
+  console.log(error);
+}
+});
+
+// GET api/profile/:id - See one user
+router.get('/profile/:id', isAuthenticated, async (req, res) => {
+  try {
+  const { id } = req.params
+  const seeUser = await User.findById(id).populate("atendeeEvent favorite");
+  res.json(seeUser);
+} catch(error) {
+  console.log(error);
+}
+});
+
+// PUT /api/edit-profile/:id - Edit user profile
+router.put("/edit-profile/:id", isAuthenticated, async (req, res, next) => {
+  let { email, firstName, lastName, gender, location ,aboutMe, imageUrl} = req.body;
+  try {
+    const { id } = req.params //try params
+    const updatedUser = await User.findByIdAndUpdate(id, { email, firstName, lastName, gender, location ,aboutMe, imageUrl}, { new: true });
+    res.json(updatedUser) //
+  } catch(error) {
+    console.log(error);
+    next(error)
+  }
+});
+
+// //DELETE /api/delete-profile/:id - Delete the user
+router.delete('/delete-profile/:id', isAuthenticated, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const deletedUser = await User.findByIdAndRemove(id);
+    res.status(200).json(deletedUser);
+  } catch (error) {
+    res.json(error);
+  }
+})
+
 module.exports = router;
+
+

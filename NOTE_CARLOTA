@@ -1,0 +1,7 @@
+Events routes created 
+
+The API is showing on computer terminal when calling it from postman as a get request
+(this route doesn't exist on postman)
+
+The API is showing on postman when calling it as a post request and on the terminal as well
+
